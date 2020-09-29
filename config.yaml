@@ -1,0 +1,21 @@
+options:
+  lxd_endpoint:
+    type: string
+    default: ""
+    description: |
+      URL of the LXD API endpoint
+  lxd_client_cert:
+    type: string
+    default: ""
+    description: |
+      Client certificate to use talking to LXD
+  lxd_client_key:
+    type: string
+    default: ""
+    description: |
+      Client key to use talking to LXD
+  lxd_server_cert:
+    type: string
+    default: ""
+    description: |
+      Certificate of the LXD server to talk to
