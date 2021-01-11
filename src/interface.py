@@ -2,10 +2,8 @@
 #
 # (c) 2020 Canonical Ltd. All rights reserved
 #
-
-from hashlib import sha256
-from http import client as httpclient
 import io
+from http import client as httpclient
 import json
 import logging
 import ssl
@@ -93,13 +91,11 @@ class Lxd(Object):
             return
 
         data = self.framework.model.get_relation(self._relation_name).data[self.model.unit]
-        nodes = json.loads(data.get('nodes', '[]'))
-        nodes.append({
+        data['nodes'] = json.dumps([{
             'endpoint': self.state.endpoint,
             'name': self.state.server_name,
-            'trusted_cert_fp': '[]'
-        })
-        data['nodes'] = json.dumps(nodes)
+            'trusted_certs_fp': []
+        }])
         data['version'] = '1.0'
 
 
@@ -135,7 +131,7 @@ class Lxd(Object):
 
         conn = self._new_connection()
 
-        fp = sha256(cert.encode('utf-8')).hexdigest()
+        fp = self._cert_fingerprint(cert)
         logger.info('removing certificate {} from trust store'.format(fp))
         conn.request('DELETE', '/1.0/certificates/{}'.format(fp))
         response = conn.getresponse()
@@ -144,6 +140,12 @@ class Lxd(Object):
 
         if response.getcode() != 202:
             logger.error(data)
+
+
+    def _cert_fingerprint(self, cert):
+        if isinstance(cert, str):
+            cert = load_certificate(FILETYPE_PEM, cert)
+        return cert.digest('sha256').decode('utf-8').replace(':', '').lower()
 
 
     def _register_cert(self, cert: str) -> None:
@@ -160,11 +162,11 @@ class Lxd(Object):
             content += line.rstrip('\r\n')
             line = buff.readline()
 
-        fp = sha256(cert.encode('utf-8')).hexdigest()
-        logger.info('adding certificate {} to trust store'.format(fp))
-
         x509_cert = load_certificate(FILETYPE_PEM, cert)
         name = x509_cert.get_subject().CN
+        fp = self._cert_fingerprint(x509_cert)
+
+        logger.info('adding certificate {} to trust store'.format(fp))
 
         payload = json.dumps({
             "type": "client",
@@ -207,12 +209,14 @@ class Lxd(Object):
         # Register new certs
         nodes = json.loads(local_data.get('nodes', '[]'))
         current_node = next(node for node in nodes if node['endpoint'] == self.state.endpoint)
-        trusted_fps = set(current_node['trusted_cert_fp'])
+
+        trusted_fps = set(current_node['trusted_certs_fp'])
         new_certs = client_certificates - registered_certs
         for cert in new_certs:
             self._register_cert(cert)
-            fp = sha256(cert.encode('utf-8')).hexdigest()
+            fp = self._cert_fingerprint(cert)
             trusted_fps.add(fp)
 
-        local_data['trusted_certs_fp'] = json.dumps(list(trusted_fps))
+        current_node['trusted_certs_fp'] = list(trusted_fps)
+        local_data['nodes'] = json.dumps([current_node])
         self._clean_certs_from_filesystem()
