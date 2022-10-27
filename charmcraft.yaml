@@ -1,0 +1,25 @@
+type: charm
+bases:
+- build-on:
+  - name: "ubuntu"
+    channel: "20.04"
+  run-on:
+  - name: "ubuntu"
+    channel: "18.04"
+    architectures: [amd64, arm64]
+  - name: "ubuntu"
+    channel: "20.04"
+    architectures: [amd64, arm64]
+  - name: "ubuntu"
+    channel: "22.04"
+    architectures: [amd64, arm64]
+parts:
+  charm:
+    source: .
+    charm-python-packages:
+    # FIXME due to a dependency conflict between Jinja2 and markupsafe we have to
+    # get markupsafe installed here first and then let get Jinja2 pulled in via
+    # the requirements.txt specified below
+    - markupsafe
+    charm-requirements: [requirements.txt]
+    build-packages: [git]
