@@ -1,2 +1,11 @@
-/build
+.idea
+
+venv/
+build/
 *.charm
+.tox/
+.coverage
+__pycache__/
+*.py[cod]
+coverage.xml
+

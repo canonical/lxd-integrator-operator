@@ -213,7 +213,7 @@ class Lxd(Object):
         nodes = json.loads(local_data.get("nodes", "[]"))
         current_node = next(node for node in nodes if node["endpoint"] == self.state.endpoint)
 
-        trusted_fps = set(current_node["trusted_certs_fp"])
+        trusted_fps = set(json.loads(current_node["trusted_certs_fp"]))
         new_certs = client_certificates - registered_certs
         for cert in new_certs:
             self._register_cert(cert)
