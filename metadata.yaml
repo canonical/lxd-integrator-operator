@@ -6,8 +6,6 @@ description: |
   Charm to enable LXD integrations via Juju relations
 tags: ['lxd', 'native', 'integration']
 subordinated: false
-series: [xenial, bionic, focal, jammy]
-
 provides:
   api:
     interface: lxd
