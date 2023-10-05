@@ -37,7 +37,7 @@ integrator or not.
 Below are details about the information sent on the relation. Any charm implementing
 this relation should expect
 
-### `lxd` interace:
+### `lxd` interface:
 
 #### Provider side
 The provider side of the interface writes information about the available LXD nodes on the relation, and
