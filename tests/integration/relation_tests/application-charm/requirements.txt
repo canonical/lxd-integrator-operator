@@ -1,0 +1,4 @@
+jsonschema
+cryptography==38.0.4
+pylxd
+ops==2.8.0
