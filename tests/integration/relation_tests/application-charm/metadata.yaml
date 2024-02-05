@@ -1,0 +1,10 @@
+name: lxd-tester
+display-name: lxd-app
+description: a testing application for lxd-integrator charm
+summary: A simple application to relate to the nats interface to test the lxd-integrator charm
+subordinate: false
+series:
+    - jammy
+requires:
+    client:
+        interface: lxd

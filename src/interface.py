@@ -201,8 +201,15 @@ class Lxd(Object):
         received = event.relation.data[event.unit]
         local_data = event.relation.data[self.model.unit]
 
-        registered_certs = set(json.loads(received.get("trusted_certs_fp", "[]")))
-        client_certificates = set(json.loads(received.get("client_certificates", "[]")))
+        trusted_certs_fp = received.get("trusted_certs_fp", [])
+        if isinstance(trusted_certs_fp, str):
+            trusted_certs_fp = json.loads(trusted_certs_fp)
+        registered_certs = set(trusted_certs_fp)
+
+        client_certs = received.get("client_certificates", [])
+        if isinstance(client_certs, str):
+            client_certs = json.loads(client_certs)
+        client_certificates = set(client_certs)
 
         # Un-register removed certificates
         removed_certs = registered_certs - client_certificates
@@ -213,7 +220,11 @@ class Lxd(Object):
         nodes = json.loads(local_data.get("nodes", "[]"))
         current_node = next(node for node in nodes if node["endpoint"] == self.state.endpoint)
 
-        trusted_fps = set(json.loads(current_node["trusted_certs_fp"]))
+        trusted_fps = set(
+            json.loads(current_node["trusted_certs_fp"])
+            if isinstance(current_node["trusted_certs_fp"], str)
+            else current_node["trusted_certs_fp"]
+        )
         new_certs = client_certificates - registered_certs
         for cert in new_certs:
             self._register_cert(cert)
