@@ -59,6 +59,6 @@ juju deploy ./lxd-integrator_ubuntu-22.04-amd64.charm
 
 ## Canonical Contributor Agreement
 
-Canonical welcomes contributions to the NATS Operator. Please check out our
-[contributor agreement](https://ubuntu.com/legal/contributors)if you're
+Canonical welcomes contributions to the LXD Integrator Charm. Please check out our
+[contributor agreement](https://ubuntu.com/legal/contributors) if you're
 interested in contributing to the solution.
